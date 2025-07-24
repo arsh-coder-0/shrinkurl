@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShortURL - Free URL Shortener</title>
+    <style>
+        /* CSS Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #7f8c8d;
+        }
+
+        .url-form {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .url-form input[type="url"] {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .custom-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        #domain-display {
+            background: #f0f0f0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-right: none;
+            border-radius: 4px 0 0 4px;
+        }
+
+        #customPath {
+            flex-grow: 1;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 0 4px 4px 0;
+            font-size: 1rem;
+        }
+
+        .expiry-options {
+            margin-bottom: 20px;
+        }
+
+        .expiry-options select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        #shortenBtn {
+            width: 100%;
+            padding: 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #shortenBtn:hover {
+            background-color: #2980b9;
+        }
+
+        .result-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-box {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        #shortUrlResult {
+            flex-grow: 1;
+            padding: 15px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            overflow-x: auto;
+        }
+
+        #copyBtn {
+            padding: 15px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #copyBtn:hover {
+            background-color: #27ae60;
+        }
+
+        .ad-container {
+            margin-top: 20px;
+            min-height: 100px;
+            background: #f9f9f9;
+            border: 1px dashed #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #777;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .url-form, .result-container {
+                padding: 20px;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* Redirect page styles */
+        .redirect-container {
+            text-align: center;
+            padding: 50px 20px;
+        }
+        .redirect-message {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .redirect-message h1 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .redirect-message p {
+            margin-bottom: 20px;
+        }
+        .redirect-message a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .redirect-message a:hover {
+            text-decoration: underline;
+        }
+        .ad-container-2 {
+            margin: 30px auto;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ShortURL</h1>
+            <p>Free URL shortener with customizable links</p>
+        </header>
+
+        <main>
+            <div class="url-form">
+                <input type="url" id="originalUrl" placeholder="Paste your long URL here" required>
+                <div class="custom-section">
+                    <span id="domain-display">shorturl.example/</span>
+                    <input type="text" id="customPath" placeholder="custom (optional)">
+                </div>
+                <div class="expiry-options">
+                    <select id="expiryTime">
+                        <option value="1">1 day</option>
+                        <option value="7" selected>7 days</option>
+                        <option value="30">30 days</option>
+                        <option value="never">Never</option>
+                    </select>
+                </div>
+                <button id="shortenBtn">Shorten URL</button>
+            </div>
+
+            <div class="result-container hidden" id="resultContainer">
+                <div class="result-box">
+                    <span id="shortUrlResult">Your short URL will appear here</span>
+                    <button id="copyBtn">Copy</button>
+                </div>
+                <div class="ad-container">
+                    <!-- Adsterra Ad Placeholder 1 -->
+                    <div>Adsterra Ad Space (728x90)</div>
+                    <script>
+                        // Paste your Adsterra code here
+                        // Example: var at = document.createElement('script');...
+                    </script>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>© <span id="currentYear"></span> ShortURL | Free URL Shortener</p>
+        </footer>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase configuration - REPLACE WITH YOUR ACTUAL CONFIG
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // DOM Elements
+        const originalUrlInput = document.getElementById('originalUrl');
+        const customPathInput = document.getElementById('customPath');
+        const expiryTimeSelect = document.getElementById('expiryTime');
+        const shortenBtn = document.getElementById('shortenBtn');
+        const resultContainer = document.getElementById('resultContainer');
+        const shortUrlResult = document.getElementById('shortUrlResult');
+        const copyBtn = document.getElementById('copyBtn');
+        const domainDisplay = document.getElementById('domain-display');
+        const currentYear = document.getElementById('currentYear');
+
+        // Set current year in footer
+        currentYear.textContent = new Date().getFullYear();
+
+        // Set your custom domain (CHANGE THIS TO YOUR ACTUAL DOMAIN)
+        const DOMAIN = "shorturl.example"; // Change to your custom domain
+        domainDisplay.textContent = DOMAIN + "/";
+
+        // Generate random string for URL path
+        function generateRandomPath() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        // Calculate expiry date
+        function getExpiryDate(days) {
+            if (days === 'never') return null;
+            const date = new Date();
+            date.setDate(date.getDate() + parseInt(days));
+            return firebase.firestore.Timestamp.fromDate(date);
+        }
+
+        // Shorten URL
+        shortenBtn.addEventListener('click', async () => {
+            const originalUrl = originalUrlInput.value.trim();
+            let customPath = customPathInput.value.trim();
+            const expiryDays = expiryTimeSelect.value;
+
+            if (!originalUrl) {
+                alert('Please enter a URL to shorten');
+                return;
+            }
+
+            // Validate URL format
+            try {
+                new URL(originalUrl);
+            } catch (e) {
+                alert('Please enter a valid URL (include http:// or https://)');
+                return;
+            }
+
+            // Generate path if custom not provided
+            if (!customPath) {
+                customPath = generateRandomPath();
+            } else {
+                // Validate custom path
+                if (!/^[a-zA-Z0-9_-]+$/.test(customPath)) {
+                    alert('Custom path can only contain letters, numbers, hyphens and underscores');
+                    return;
+                }
+            }
+
+            // Check if path already exists
+            const pathCheck = await db.collection('urls').doc(customPath).get();
+            if (pathCheck.exists) {
+                alert('This custom path is already in use. Please try another one.');
+                return;
+            }
+
+            // Create URL record
+            const urlData = {
+                originalUrl: originalUrl,
+                shortPath: customPath,
+                createdAt: firebase.firestore.Timestamp.fromDate(new Date()),
+                expiresAt: getExpiryDate(expiryDays),
+                clicks: 0
+            };
+
+            try {
+                await db.collection('urls').doc(customPath).set(urlData);
+                
+                // Display result
+                const shortUrl = `https://${DOMAIN}/${customPath}`;
+                shortUrlResult.textContent = shortUrl;
+                resultContainer.classList.remove('hidden');
+                
+                // Scroll to result
+                resultContainer.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                console.error('Error saving URL: ', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+
+        // Copy to clipboard
+        copyBtn.addEventListener('click', () => {
+            const textToCopy = shortUrlResult.textContent;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                copyBtn.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copy';
+                }, 2000);
+            });
+        });
+
+        // URL Redirection Logic (for GitHub Pages)
+        // This handles when someone visits your short URL
+        if (window.location.pathname.length > 1) {
+            // Extract the path (remove leading /)
+            const path = window.location.pathname.substring(1);
+            
+            // Check Firebase for this path
+            db.collection('urls').doc(path).get().then((doc) => {
+                if (doc.exists) {
+                    const urlData = doc.data();
+                    
+                    // Check if URL is expired
+                    if (urlData.expiresAt && urlData.expiresAt.toDate() < new Date()) {
+                        document.body.innerHTML = `
+                            <div class="redirect-container">
+                                <div class="redirect-message">
+                                    <h1>Link Expired</h1>
+                                    <p>This short URL has expired and is no longer available.</p>
+                                    <a href="/">Create a new short URL</a>
+                                </div>
+                                <div class="ad-container-2">
+                                    <!-- Adsterra Ad Placeholder 2 -->
+                                    <div>Adsterra Ad Space (300x250)</div>
+                                    <script>
+                                        // Paste your Adsterra code here
+                                        // Example: var at = document.createElement('script');...
+                                    </script>
+                                </div>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    // Update click count
+                    db.collection('urls').doc(path).update({
+                        clicks: firebase.firestore.FieldValue.increment(1)
+                    });
+                    
+                    // Show redirect page with ad
+                    document.body.innerHTML = `
+                        <div class="redirect-container">
+                            <div class="redirect-message">
+                                <h1>Redirecting...</h1>
+                                <p>You are being redirected to the original URL. Please wait.</p>
+                                <p>If you are not redirected automatically, <a href="${urlData.originalUrl}">click here</a>.</p>
+                            </div>
+                            <div class="ad-container-2">
+                                <!-- Adsterra Ad Placeholder 2 -->
+                                <div>Adsterra Ad Space (300x250)</div>
+                                <script>
+                                    // Paste your Adsterra code here
+                                    // Example: var at = document.createElement('script');...
+                                </script>
+                            </div>
+                            <script>
+                                // Redirect after 3 seconds (or after ad loads)
+                                setTimeout(() => {
+                                    window.location.href = "${urlData.originalUrl}";
+                                }, 3000);
+                            </script>
+                        </div>
+                    `;
+                } else {
+                    document.body.innerHTML = `
+                        <div class="redirect-container">
+                            <div class="redirect-message">
+                                <h1>Link Not Found</h1>
+                                <p>This short URL doesn't exist.</p>
+                                <a href="/">Create a new short URL</a>
+                            </div>
+                            <div class="ad-container-2">
+                                <!-- Adsterra Ad Placeholder 2 -->
+                                <div>Adsterra Ad Space (300x250)</div>
+                                <script>
+                                    // Paste your Adsterra code here
+                                    // Example: var at = document.createElement('script');...
+                                </script>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        }
+    </script>
+
+    <!-- Adsterra Script - PASTE YOUR ACTUAL AD CODE HERE -->
+    <script>
+        // Example Adsterra code (replace with your actual code)
+        /*
+        var at = document.createElement('script');
+        at.type = 'text/javascript';
+        at.async = true;
+        at.src = 'https://www.profitabledisplaynetwork.com/1234567.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(at, s);
+        */
+    </script>
+</body>
+</html>
